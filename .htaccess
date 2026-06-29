@@ -1,0 +1,47 @@
+Options -Indexes
+Options -MultiViews
+
+php_flag display_errors Off
+
+RewriteEngine On
+RewriteBase /
+
+# Admin routes
+RewriteRule ^admin/?$ /admin/index.php [L]
+RewriteRule ^admin/login/?$ /admin/login.php [L]
+RewriteRule ^admin/(.+)$ /admin/pages/$1 [L]
+
+# API routes — don't rewrite, let them pass through
+RewriteRule ^api/ - [L]
+
+# Service pages
+RewriteRule ^(wedding|newborn|model-shoot|maternity|corporate|couple-portraits)/?$ /service.php?slug=$1 [QSA,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Block direct access to sensitive files
+<FilesMatch "^(config|functions)\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(sql|log|env)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
